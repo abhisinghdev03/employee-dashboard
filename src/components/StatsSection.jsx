@@ -7,9 +7,9 @@ function StatsSection(){
     return (
         
         <section style={{ display: "flex", gap:16, padding: 16 }}>
-            <StatCard/>
-            <StatCard/>
-            <StatCard/>
+            <StatCard label="Total employees" value={stats.total} />
+            <StatCard label="Active" value={stats.active} sub={`${activePct}% of total`} />
+            <StatCard label="On leave" value={stats.onLeave} />
         </section>
         
     );

@@ -1,6 +1,6 @@
-function PageTitle(){
+function PageTitle({title="Dashboard"}){
     return (
-        <h1>Employees Dashboard</h1>
+        <h1>{title}</h1>
     );
 }
 
