@@ -10,7 +10,6 @@ function StatsSection({employees = []}) {
 
   return (
     <section style={{ display: "flex", gap: 16, padding: 16 }}>
-      <h2>{stats.total > 0 && <p>has data</p>}</h2>
       <StatCard label="Total employees" value={stats.total} />
       <StatCard
         label="Active"
