@@ -19,32 +19,62 @@ function App() {
 
   const [selectedDept, setSelectedDept] = useState("All");    // filters - dropdown
   const [activeOnly, setActiveOnly] = useState(false);  // filter - checkbox/toggle
+  const [query, setQuery] = useState("");   // search-box filter
 
   const departments = ["All", "Engineering", "Marketing", "Finance"];
     
    // DERIVED, not stored in state — recomputed each render (best practice #4)
   const visibleEmployees = employees
   .filter(e => selectedDept === "All" || e.department === selectedDept)
-  .filter(e => !activeOnly || e.active);
+  .filter(e => !activeOnly || e.active)
+  .filter(e =>
+    `${e.firstName} ${e.lastName}`.toLowerCase().includes(query.trim().toLowerCase())
+  );
+
+  function handleQueryChange(e) {
+    setQuery(e.target.value);
+  }
+
+  function handleResetFilters() {
+    setQuery("");
+    setSelectedDept("All");
+    setActiveOnly(false);
+  }
 
   return (
     <>
       <Header user={user} />
       <StatsSection employees={visibleEmployees} />
-      <div style={{ padding: 16 }}>
-          <input  type="checkbox" id="activeOnly"
-            onChange={e => setActiveOnly(e.target.checked)}
-            checked={activeOnly}
-          />
-          <label htmlFor="activeOnly">Active only</label>
-      </div>
-      <div style={{paddingBottom: 16}}>
-        <select value={selectedDept} 
-          onChange={e => setSelectedDept(e.target.value)} 
-          style={{ marginLeft: 12 }}>
+ 
+      <div style={{ padding: 16, display: "flex", gap: 12, alignItems: "center" }}>
+
+        {/* ---------- SEARCH BOX --------- */}
+        <input
+          type="text"
+          value={query}
+          onChange={handleQueryChange}
+          placeholder="Search by name…"
+        />
+
+        {/* --------- DROP-DOWN BOX --------- */}
+        <select value={selectedDept} onChange={e => setSelectedDept(e.target.value)}>
           {departments.map(d => <option key={d} value={d}>{d}</option>)}
         </select>
+
+        {/* --------- CHECK BOX --------- */}
+        <label>
+          <input
+            type="checkbox"
+            checked={activeOnly}
+            onChange={e => setActiveOnly(e.target.checked)}
+          />
+          {" "}Active only
+        </label>
+
+        <button onClick={handleResetFilters}>Reset</button>
       </div>
+
+      {/* --------- EMPLOYEE TABLE --------- */}
       <EmployeeList employees={visibleEmployees} />
     </>
   );
