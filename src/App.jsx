@@ -10,12 +10,12 @@ function App() {
     lastLogin: "2026-07-18T09:30:00",
   };
 
-  const employees = [
+  const [employees, setEmployees] = useState([
     { id: 1, firstName: "Priya",  lastName: "Sharma", department: "Engineering", active: true },
     { id: 2, firstName: "Rahul",  lastName: "Verma",  department: "Marketing",   active: true },
     { id: 3, firstName: "Anita",  lastName: "Desai",  department: "Engineering", active: false },
     { id: 4, firstName: "Vikram", lastName: "Singh",  department: "Finance",     active: true },
-  ];
+  ]);
 
   const [selectedDept, setSelectedDept] = useState("All");    // filters - dropdown
   const [activeOnly, setActiveOnly] = useState(false);  // filter - checkbox/toggle
@@ -39,6 +39,20 @@ function App() {
     setQuery("");
     setSelectedDept("All");
     setActiveOnly(false);
+  }
+
+  function handleRemove(id) {
+    setEmployees(prev => prev.filter(e => e.id !== id));
+  }
+
+  function handleAllOnLeave() {
+    setEmployees(prev => prev.map(e => ({ ...e, active: false })));
+  }
+
+  function handleToggleActive(id) {
+    setEmployees(prev =>
+      prev.map(e => e.id === id ? { ...e, active: !e.active } : e)
+    );
   }
 
   return (
@@ -72,10 +86,15 @@ function App() {
         </label>
 
         <button onClick={handleResetFilters}>Reset</button>
+        <button onClick={handleAllOnLeave}>Set all on leave</button>
       </div>
 
       {/* --------- EMPLOYEE TABLE --------- */}
-      <EmployeeList employees={visibleEmployees} />
+      <EmployeeList 
+        employees={visibleEmployees}
+        onRemove={handleRemove}
+        onToggleActive={handleToggleActive}
+        />
     </>
   );
 }
