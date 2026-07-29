@@ -1,6 +1,7 @@
 import Header from "./components/Header.jsx";
 import StatsSection from "./components/StatsSection.jsx";
 import EmployeeList from "./components/EmployeeList.jsx";
+import EmployeeDetail from "./components/EmployeeDetail.jsx"
 import { useState } from "react";
 
 function App() {
@@ -30,6 +31,15 @@ function App() {
   .filter(e =>
     `${e.firstName} ${e.lastName}`.toLowerCase().includes(query.trim().toLowerCase())
   );
+
+  const [selectedId, setSelectedId] = useState(null);
+
+  // Derived — the selected employee object, found by id. NOT separate state.
+  const selectedEmployee = employees.find(e => e.id === selectedId) ?? null;
+
+  function handleSelect(id) {
+    setSelectedId(id);
+  }
 
   function handleQueryChange(e) {
     setQuery(e.target.value);
@@ -90,11 +100,20 @@ function App() {
       </div>
 
       {/* --------- EMPLOYEE TABLE --------- */}
-      <EmployeeList 
-        employees={visibleEmployees}
-        onRemove={handleRemove}
-        onToggleActive={handleToggleActive}
-        />
+      <div style={{ display: "flex", gap: 16 }}>
+        <div style={{ flex: 2 }}>
+          <EmployeeList
+            employees={visibleEmployees}
+            selectedId={selectedId}
+            onSelect={handleSelect}
+            onRemove={handleRemove}
+            onToggleActive={handleToggleActive}
+          />
+        </div>
+        <div style={{ flex: 1 }}>
+          <EmployeeDetail employee={selectedEmployee} />
+        </div>
+      </div>
     </>
   );
 }
