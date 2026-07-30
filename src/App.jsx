@@ -2,6 +2,7 @@ import Header from "./components/Header.jsx";
 import StatsSection from "./components/StatsSection.jsx";
 import EmployeeList from "./components/EmployeeList.jsx";
 import EmployeeDetail from "./components/EmployeeDetail.jsx"
+import AddEmployeeForm from "./components/AddEmployeeForm.jsx";
 import { useState } from "react";
 
 function App() {
@@ -65,11 +66,15 @@ function App() {
     );
   }
 
+  function handleAddEmployee(employee) {
+    setEmployees(prev => [...prev, employee]);   // new array, appended
+  }
+
   return (
     <>
       <Header user={user} />
       <StatsSection employees={visibleEmployees} />
- 
+      <AddEmployeeForm onAdd={handleAddEmployee} />
       <div style={{ padding: 16, display: "flex", gap: 12, alignItems: "center" }}>
 
         {/* ---------- SEARCH BOX --------- */}
