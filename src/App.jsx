@@ -55,9 +55,6 @@ function App() {
 
   const [selectedId, setSelectedId] = useState(null);
 
-  // Derived — the selected employee object, found by id. NOT separate state.
-  const selectedEmployee = employees.find(e => e.id === selectedId) ?? null;
-
   function handleSelect(id) {
     setSelectedId(id);
   }
@@ -148,7 +145,7 @@ function App() {
           />
         </div>
         <div style={{ flex: 1 }}>
-          <EmployeeDetail employee={selectedEmployee} />
+          <EmployeeDetail selectedId={selectedId}  />
         </div>
       </div>
     </>

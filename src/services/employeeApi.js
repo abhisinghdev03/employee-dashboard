@@ -6,6 +6,11 @@ const toEmployee = (u) => ({
   lastName: u.lastName,
   department: u.company?.department ?? "Unknown",
   active: true,
+
+  // extra detail fields — available on the single-user endpoint
+  email: u.email,
+  phone: u.phone,
+  age: u.age,
 });
 
 export const employeeApi = {
