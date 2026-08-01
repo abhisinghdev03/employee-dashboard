@@ -4,6 +4,7 @@ import EmployeeList from "./components/EmployeeList.jsx";
 import EmployeeDetail from "./components/EmployeeDetail.jsx"
 import AddEmployeeForm from "./components/AddEmployeeForm.jsx";
 import { useState, useEffect } from "react";
+import { fetchEmployees } from "./services/employeeApi";
 
 function App() {
   const user = {
@@ -15,21 +16,26 @@ function App() {
   /*
   const [employees, setEmployees] = useState();
   */
-  const [employees, setEmployees] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [employees, setEmployees] = useState([]);   // data
+  const [isLoading, setIsLoading] = useState(true); // loading flag  
+  const [error, setError] = useState(null);         // error holder
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setEmployees([
-        { id: 1, firstName: "Priya",  lastName: "Sharma", department: "Engineering", active: true },
-        { id: 2, firstName: "Rahul",  lastName: "Verma",  department: "Marketing",   active: true },
-        { id: 3, firstName: "Anita",  lastName: "Desai",  department: "Engineering", active: false },
-        { id: 4, firstName: "Vikram", lastName: "Singh",  department: "Finance",     active: true },
-      ]);
-      setIsLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);   // cleanup if we unmount mid-load
-  }, []);   // sync once on mount — load initial data
+    // "When the dashboard appears, go get the employees from the server."
+    async function load() {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const data = await fetchEmployees();
+        setEmployees(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setIsLoading(false);                         // runs whether success or failure
+      }
+    }
+    load();
+  }, []);   // [] = fetch once when the component appears
 
   const saved = JSON.parse(localStorage.getItem("empDashFilters") || "{}");
 
@@ -41,11 +47,11 @@ function App() {
     
    // DERIVED, not stored in state — recomputed each render (best practice #4)
   const visibleEmployees = employees
-  .filter(e => selectedDept === "All" || e.department === selectedDept)
-  .filter(e => !activeOnly || e.active)
-  .filter(e =>
-    `${e.firstName} ${e.lastName}`.toLowerCase().includes(query.trim().toLowerCase())
-  );
+    .filter(e => selectedDept === "All" || e.department === selectedDept)
+    .filter(e => !activeOnly || e.active)
+    .filter(e =>
+      `${e.firstName} ${e.lastName}`.toLowerCase().includes(query.trim().toLowerCase())
+    );
 
   const [selectedId, setSelectedId] = useState(null);
 
@@ -133,6 +139,7 @@ function App() {
         <div style={{ flex: 2 }}>
           <EmployeeList
             isLoading={isLoading} 
+            error={error}
             employees={visibleEmployees}
             selectedId={selectedId}
             onSelect={handleSelect}
