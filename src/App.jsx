@@ -3,7 +3,7 @@ import StatsSection from "./components/StatsSection.jsx";
 import EmployeeList from "./components/EmployeeList.jsx";
 import EmployeeDetail from "./components/EmployeeDetail.jsx"
 import AddEmployeeForm from "./components/AddEmployeeForm.jsx";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function App() {
   const user = {
@@ -12,16 +12,30 @@ function App() {
     lastLogin: "2026-07-18T09:30:00",
   };
 
-  const [employees, setEmployees] = useState([
-    { id: 1, firstName: "Priya",  lastName: "Sharma", department: "Engineering", active: true },
-    { id: 2, firstName: "Rahul",  lastName: "Verma",  department: "Marketing",   active: true },
-    { id: 3, firstName: "Anita",  lastName: "Desai",  department: "Engineering", active: false },
-    { id: 4, firstName: "Vikram", lastName: "Singh",  department: "Finance",     active: true },
-  ]);
+  /*
+  const [employees, setEmployees] = useState();
+  */
+  const [employees, setEmployees] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const [selectedDept, setSelectedDept] = useState("All");    // filters - dropdown
-  const [activeOnly, setActiveOnly] = useState(false);  // filter - checkbox/toggle
-  const [query, setQuery] = useState("");   // search-box filter
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setEmployees([
+        { id: 1, firstName: "Priya",  lastName: "Sharma", department: "Engineering", active: true },
+        { id: 2, firstName: "Rahul",  lastName: "Verma",  department: "Marketing",   active: true },
+        { id: 3, firstName: "Anita",  lastName: "Desai",  department: "Engineering", active: false },
+        { id: 4, firstName: "Vikram", lastName: "Singh",  department: "Finance",     active: true },
+      ]);
+      setIsLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);   // cleanup if we unmount mid-load
+  }, []);   // sync once on mount — load initial data
+
+  const saved = JSON.parse(localStorage.getItem("empDashFilters") || "{}");
+
+  const [selectedDept, setSelectedDept] = useState(saved.selectedDept ?? "All");    // filters - dropdown
+  const [activeOnly, setActiveOnly] = useState(saved.activeOnly ?? false);  // filter - checkbox/toggle
+  const [query, setQuery] = useState(saved.query ?? "");   // search-box filter
 
   const departments = ["All", "Engineering", "Marketing", "Finance"];
     
@@ -70,6 +84,16 @@ function App() {
     setEmployees(prev => [...prev, employee]);   // new array, appended
   }
 
+  // preserve applied filter on browser refresh
+  useEffect(() => {
+    localStorage.setItem("empDashFilters", JSON.stringify({ selectedDept, activeOnly, query }));
+  }, [selectedDept, activeOnly, query]);   // re-sync storage whenever any filter changes
+
+  // display employee count in browser tab
+  useEffect(() => {
+    document.title = `Employees (${employees.length})`;
+  }, [employees.length]);   // re-sync when the count changes
+
   return (
     <>
       <Header user={user} />
@@ -108,6 +132,7 @@ function App() {
       <div style={{ display: "flex", gap: 16 }}>
         <div style={{ flex: 2 }}>
           <EmployeeList
+            isLoading={isLoading} 
             employees={visibleEmployees}
             selectedId={selectedId}
             onSelect={handleSelect}
