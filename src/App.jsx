@@ -4,7 +4,7 @@ import EmployeeList from "./components/EmployeeList.jsx";
 import EmployeeDetail from "./components/EmployeeDetail.jsx"
 import AddEmployeeForm from "./components/AddEmployeeForm.jsx";
 import { useState, useEffect } from "react";
-import { fetchEmployees } from "./services/employeeApi";
+import { employeeApi } from "./services/employeeApi";
 
 function App() {
   const user = {
@@ -26,7 +26,7 @@ function App() {
       try {
         setIsLoading(true);
         setError(null);
-        const data = await fetchEmployees();
+        const data = await employeeApi.getAll(); 
         setEmployees(data);
       } catch (err) {
         setError(err.message);
