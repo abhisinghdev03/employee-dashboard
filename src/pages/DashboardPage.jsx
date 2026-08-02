@@ -1,0 +1,133 @@
+import { useState, useEffect } from "react";
+import { employeeApi } from "../services/employeeApi";
+import Header from "../components/Header";
+import StatsSection from "../components/StatsSection";
+import EmployeeList from "../components/EmployeeList";
+import EmployeeDetail from "../components/EmployeeDetail"
+import AddEmployeeForm from "../components/AddEmployeeForm";
+
+function DashboardPage (){
+      const user = {
+    name: "Abhishek S",
+    role: "Admin",
+    lastLogin: "2026-07-18T09:30:00",
+  };
+
+  /*
+  const [employees, setEmployees] = useState();
+  */
+  const [employees, setEmployees] = useState([]);   // data
+  const [isLoading, setIsLoading] = useState(true); // loading flag  
+  const [error, setError] = useState(null);         // error holder
+
+  //const saved = JSON.parse(localStorage.getItem("empDashFilters") || "{}");
+  const [selectedDept, setSelectedDept] = useState("All");    // filters - dropdown
+  const [activeOnly, setActiveOnly] = useState(false);  // filter - checkbox/toggle
+  const [query, setQuery] = useState("");   // search-box filter
+  const [selectedId, setSelectedId] = useState(null);
+
+  const departments = ["All", "Engineering", "Marketing", "Finance"];
+
+  useEffect(() => {
+    // "When the dashboard appears, go get the employees from the server."
+    async function load() {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const data = await employeeApi.getAll(); 
+        setEmployees(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setIsLoading(false);                         // runs whether success or failure
+      }
+    }
+    load();
+  }, []);   // [] = fetch once when the component appears
+
+    function handleAddEmployee(employee) {
+        setEmployees(prev => [...prev, employee]);   // new array, appended
+    }
+
+    function handleRemove(id) {
+        setEmployees(prev => prev.filter(e => e.id !== id));
+    }
+
+    function handleToggleActive(id) {
+        setEmployees(prev =>
+            prev.map(e => e.id === id ? { ...e, active: !e.active } : e)
+        );
+    }  
+
+    function handleResetFilters() {
+        setQuery("");
+        setSelectedDept("All");
+        setActiveOnly(false);
+    }
+
+
+   // DERIVED, not stored in state — recomputed each render (best practice #4)
+  const visibleEmployees = employees
+    .filter(e => selectedDept === "All" || e.department === selectedDept)
+    .filter(e => !activeOnly || e.active)
+    .filter(e =>
+      `${e.firstName} ${e.lastName}`.toLowerCase().includes(query.trim().toLowerCase())
+    );
+
+  return (
+    <>
+      <Header user={user} />
+      <StatsSection employees={visibleEmployees} />
+
+      <AddEmployeeForm onAdd={handleAddEmployee} />
+      
+      <div style={{ padding: 16, display: "flex", gap: 12, alignItems: "center" }}>
+
+        {/* ---------- SEARCH BOX --------- */}
+        <input  
+          type="text"
+          value={query}
+          onChange={e => setQuery(e.target.value)}
+          placeholder="Search by name…"
+        />
+
+        {/* --------- DROP-DOWN BOX --------- */}
+        <select value={selectedDept} onChange={e => setSelectedDept(e.target.value)}>
+          {departments.map(d => <option key={d} value={d}>{d}</option>)}
+        </select>
+
+        {/* --------- CHECK BOX --------- */}
+        <label>
+          <input
+            type="checkbox"
+            checked={activeOnly}
+            onChange={e => setActiveOnly(e.target.checked)}
+          />
+          {" "}Active only
+        </label>
+
+        <button onClick={handleResetFilters}>Reset</button>
+      </div>
+
+      {/* --------- EMPLOYEE TABLE --------- */}
+      <div style={{ display: "flex", gap: 16, padding: 16 }}>
+        <div style={{ flex: 2 }}>
+          <EmployeeList
+            employees={visibleEmployees}
+            isLoading={isLoading} 
+            error={error}
+            selectedId={selectedId}
+            onSelect={setSelectedId}
+            onRemove={handleRemove}
+            onToggleActive={handleToggleActive}
+          />
+        </div>
+        <div style={{ flex: 1 }}>
+          <EmployeeDetail selectedId={selectedId}  />
+        </div>
+      </div>
+    </>
+  );
+}
+
+export default DashboardPage;
