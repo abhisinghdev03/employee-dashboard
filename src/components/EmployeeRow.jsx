@@ -1,11 +1,14 @@
-function EmployeeRow({ employee, isSelected, onSelect, onRemove, onToggleActive }) {
+import { Link } from "react-router-dom";
+
+function EmployeeRow({ employee, onRemove, onToggleActive }) {
   return (
-    <tr
-      onClick={() => onSelect(employee.id)}
-      style={{ background: isSelected ? "#eef2ff" : "", cursor: "pointer" }}
-    >
+    <tr>
       <td>{employee.id}</td>
-      <td>{employee.firstName} {employee.lastName}</td>
+      <td>
+        <Link to={`/employees/${employee.id}`}>
+          {employee.firstName} {employee.lastName}
+        </Link>
+      </td>
       <td>{employee.department}</td>
       <td>{employee.active ? "Active" : "On leave"}</td>
       <td>

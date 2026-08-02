@@ -3,7 +3,6 @@ import { employeeApi } from "../services/employeeApi";
 import Header from "../components/Header";
 import StatsSection from "../components/StatsSection";
 import EmployeeList from "../components/EmployeeList";
-import EmployeeDetail from "../components/EmployeeDetail"
 import AddEmployeeForm from "../components/AddEmployeeForm";
 
 function DashboardPage (){
@@ -24,7 +23,6 @@ function DashboardPage (){
   const [selectedDept, setSelectedDept] = useState("All");    // filters - dropdown
   const [activeOnly, setActiveOnly] = useState(false);  // filter - checkbox/toggle
   const [query, setQuery] = useState("");   // search-box filter
-  const [selectedId, setSelectedId] = useState(null);
 
   const departments = ["All", "Engineering", "Marketing", "Finance"];
 
@@ -116,14 +114,9 @@ function DashboardPage (){
             employees={visibleEmployees}
             isLoading={isLoading} 
             error={error}
-            selectedId={selectedId}
-            onSelect={setSelectedId}
             onRemove={handleRemove}
             onToggleActive={handleToggleActive}
           />
-        </div>
-        <div style={{ flex: 1 }}>
-          <EmployeeDetail selectedId={selectedId}  />
         </div>
       </div>
     </>

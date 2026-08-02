@@ -1,6 +1,6 @@
 import EmployeeRow from "./EmployeeRow";
 
-function EmployeeList({ employees = [], isLoading = false, error = null, selectedId, onSelect ,onRemove, onToggleActive }) {
+function EmployeeList({ employees = [], isLoading = false, error = null, onRemove, onToggleActive }) {
   if (isLoading) return <p>Loading employees…</p>;
   if (error) return <p style={{ color: "crimson" }}>Failed to load: {error}</p>;
   if (employees.length === 0) return <p>No employees found.</p>;
@@ -17,8 +17,6 @@ function EmployeeList({ employees = [], isLoading = false, error = null, selecte
           <EmployeeRow 
             key={emp.id} 
             employee={emp} 
-            isSelected={emp.id === selectedId}
-            onSelect={onSelect}
             onRemove={onRemove} 
             onToggleActive={onToggleActive}/>
         ))}

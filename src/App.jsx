@@ -2,6 +2,7 @@ import { Routes, Route, NavLink } from "react-router-dom";
 import DashboardPage from "./pages/DashboardPage";
 import SettingsPage from "./pages/SettingsPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import EmployeeDetailPage from "./pages/EmployeeDetailPage";
 
 function App() {
   const linkStyle = ({ isActive }) => ({
@@ -18,6 +19,7 @@ function App() {
 
       <Routes>
         <Route path="/" element={<DashboardPage />} />
+        <Route path="/employees/:id" element={<EmployeeDetailPage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
