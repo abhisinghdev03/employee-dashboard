@@ -1,29 +1,35 @@
-import { Routes, Route, NavLink } from "react-router-dom";
+import { useState } from "react";
+import { Routes, Route } from "react-router-dom";
+import MainLayout from "./layouts/MainLayout";
+import ProtectedRoute from "./routes/ProtectedRoute";
 import DashboardPage from "./pages/DashboardPage";
-import SettingsPage from "./pages/SettingsPage";
-import NotFoundPage from "./pages/NotFoundPage";
 import EmployeeDetailPage from "./pages/EmployeeDetailPage";
+import SettingsPage from "./pages/SettingsPage";
+import LoginPage from "./pages/LoginPage";
+import NotFoundPage from "./pages/NotFoundPage";
 
 function App() {
-  const linkStyle = ({ isActive }) => ({
-    fontWeight: isActive ? "bold" : "normal",
-    textDecoration: isActive ? "underline" : "none",
-  });
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   return (
-    <>
-      <nav style={{ padding: 16, borderBottom: "1px solid #ddd", display: "flex", gap: 16 }}>
-        <NavLink to="/" style={linkStyle} end>Dashboard</NavLink>
-        <NavLink to="/settings" style={linkStyle}>Settings</NavLink>
-      </nav>
+    <Routes>
+      {/* public */}
+      <Route
+        path="/login"
+        element={<LoginPage onLogin={() => setIsLoggedIn(true)} />}
+      />
 
-      <Routes>
-        <Route path="/" element={<DashboardPage />} />
-        <Route path="/employees/:id" element={<EmployeeDetailPage />} />
-        <Route path="/settings" element={<SettingsPage />} />
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-    </>
+      {/* gated + shared layout */}
+      <Route element={<ProtectedRoute isLoggedIn={isLoggedIn} />}>
+        <Route element={<MainLayout />}>
+          <Route path="/" element={<DashboardPage />} />
+          <Route path="/employees/:id" element={<EmployeeDetailPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+        </Route>
+      </Route>
+
+      <Route path="*" element={<NotFoundPage />} />
+    </Routes>
   );
 }
 

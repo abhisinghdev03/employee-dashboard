@@ -6,7 +6,7 @@ import EmployeeList from "../components/EmployeeList";
 import AddEmployeeForm from "../components/AddEmployeeForm";
 
 function DashboardPage (){
-      const user = {
+  const user = {
     name: "Abhishek S",
     role: "Admin",
     lastLogin: "2026-07-18T09:30:00",
