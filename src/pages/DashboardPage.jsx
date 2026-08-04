@@ -26,22 +26,34 @@ function DashboardPage (){
 
   const departments = ["All", "Engineering", "Marketing", "Finance"];
 
+  // pagination settings
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const pageSize = 20;
+  const totalPages = Math.ceil(total / pageSize);
+  
   useEffect(() => {
+    let ignore = false;
+
     // "When the dashboard appears, go get the employees from the server."
     async function load() {
       try {
         setIsLoading(true);
         setError(null);
-        const data = await employeeApi.getAll(); 
-        setEmployees(data);
+        const data = await employeeApi.getAll({ page, pageSize }); 
+        if (!ignore) {
+          setEmployees(data.employees);
+          setTotal(data.total);
+        }
       } catch (err) {
-        setError(err.message);
+        if (!ignore) setError(err.message);
       } finally {
-        setIsLoading(false);                         // runs whether success or failure
+        if (!ignore) setIsLoading(false);
       }
     }
     load();
-  }, []);   // [] = fetch once when the component appears
+    return () => { ignore = true; };
+  }, [page]);   // re-fetch on page change
 
     function handleAddEmployee(employee) {
         setEmployees(prev => [...prev, employee]);   // new array, appended
@@ -118,6 +130,15 @@ function DashboardPage (){
             onToggleActive={handleToggleActive}
           />
         </div>
+      </div>
+      <div style={{ display: "flex", gap: 12, alignItems: "center", padding: 16 }}>
+        <button onClick={() => setPage(p => p - 1)} disabled={page === 1}>
+          ← Prev
+        </button>
+        <span>Page {page} of {totalPages || 1}</span>
+        <button onClick={() => setPage(p => p + 1)} disabled={page >= totalPages}>
+          Next →
+        </button>
       </div>
     </>
   );

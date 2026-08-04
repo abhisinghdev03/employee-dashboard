@@ -14,9 +14,13 @@ const toEmployee = (u) => ({
 });
 
 export const employeeApi = {
-  async getAll() {
-    const data = await apiClient.get("/users?limit=20");
-    return data.users.map(toEmployee);
+  async getAll({ page = 1, pageSize = 20 }) {
+    const skip = (page - 1) * pageSize;
+    const data = await apiClient.get(`/users?limit=${pageSize}&skip=${skip}`);
+    return {
+      employees: data.users.map(toEmployee),
+      total: data.total,
+    };
   },
   async getById(id) {
     return toEmployee(await apiClient.get(`/users/${id}`));
