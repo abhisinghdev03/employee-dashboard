@@ -23,6 +23,7 @@ function DashboardPage (){
   const [selectedDept, setSelectedDept] = useState("All");    // filters - dropdown
   const [activeOnly, setActiveOnly] = useState(false);  // filter - checkbox/toggle
   const [query, setQuery] = useState("");   // search-box filter
+  const [debouncedQuery, setDebouncedQuery] = useState("");
 
   const departments = ["All", "Engineering", "Marketing", "Finance"];
 
@@ -32,6 +33,7 @@ function DashboardPage (){
   const pageSize = 20;
   const totalPages = Math.ceil(total / pageSize);
   
+  
   useEffect(() => {
     let ignore = false;
 
@@ -40,7 +42,9 @@ function DashboardPage (){
       try {
         setIsLoading(true);
         setError(null);
-        const data = await employeeApi.getAll({ page, pageSize }); 
+        const data = debouncedQuery
+          ? await employeeApi.search({ q: debouncedQuery, page, pageSize })
+          : await employeeApi.getPage({ page, pageSize });
         if (!ignore) {
           setEmployees(data.employees);
           setTotal(data.total);
@@ -53,7 +57,16 @@ function DashboardPage (){
     }
     load();
     return () => { ignore = true; };
-  }, [page]);   // re-fetch on page change
+  }, [debouncedQuery, page]);   // re-fetch when search OR page changes
+
+  // Debounce query → debouncedQuery, and reset to page 1 on new search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(query);
+      setPage(1);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [query]);
 
     function handleAddEmployee(employee) {
         setEmployees(prev => [...prev, employee]);   // new array, appended
@@ -79,10 +92,7 @@ function DashboardPage (){
    // DERIVED, not stored in state — recomputed each render (best practice #4)
   const visibleEmployees = employees
     .filter(e => selectedDept === "All" || e.department === selectedDept)
-    .filter(e => !activeOnly || e.active)
-    .filter(e =>
-      `${e.firstName} ${e.lastName}`.toLowerCase().includes(query.trim().toLowerCase())
-    );
+    .filter(e => !activeOnly || e.active);
 
   return (
     <>

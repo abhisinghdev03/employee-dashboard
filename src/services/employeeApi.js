@@ -14,7 +14,7 @@ const toEmployee = (u) => ({
 });
 
 export const employeeApi = {
-  async getAll({ page = 1, pageSize = 20 }) {
+  async getPage({ page = 1, pageSize = 20 }) {
     const skip = (page - 1) * pageSize;
     const data = await apiClient.get(`/users?limit=${pageSize}&skip=${skip}`);
     return {
@@ -31,4 +31,9 @@ export const employeeApi = {
   async remove(id) {
     return apiClient.delete(`/users/${id}`);
   },
+  async search({ q, page = 1, pageSize = 20 }) {
+    const skip = (page - 1) * pageSize;
+    const data = await apiClient.get(`/users/search?q=${encodeURIComponent(q)}&limit=${pageSize}&skip=${skip}`);
+    return { employees: data.users.map(toEmployee), total: data.total };
+  }
 };
