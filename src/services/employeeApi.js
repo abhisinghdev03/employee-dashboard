@@ -14,26 +14,30 @@ const toEmployee = (u) => ({
 });
 
 export const employeeApi = {
-  async getPage({ page = 1, pageSize = 20 }) {
+  async list({ q = "", sort = "", order = "asc", page = 1, pageSize = 20 }) {
     const skip = (page - 1) * pageSize;
-    const data = await apiClient.get(`/users?limit=${pageSize}&skip=${skip}`);
+    
+    const params = new URLSearchParams();
+    params.set("limit", pageSize);
+    params.set("skip", skip);
+    if (sort) {
+      params.set("sortBy", sort);
+      params.set("order", order);
+    }
+
+    // Use the search endpoint when there's a query, else the plain list
+    const endpoint = q
+      ? `/users/search?q=${encodeURIComponent(q)}&${params}`
+      : `/users?${params}`;
+
+    const data = await apiClient.get(endpoint);
     return {
       employees: data.users.map(toEmployee),
       total: data.total,
     };
   },
+
   async getById(id) {
     return toEmployee(await apiClient.get(`/users/${id}`));
-  },
-  async create(employee) {
-    return apiClient.post("/users/add", employee);
-  },
-  async remove(id) {
-    return apiClient.delete(`/users/${id}`);
-  },
-  async search({ q, page = 1, pageSize = 20 }) {
-    const skip = (page - 1) * pageSize;
-    const data = await apiClient.get(`/users/search?q=${encodeURIComponent(q)}&limit=${pageSize}&skip=${skip}`);
-    return { employees: data.users.map(toEmployee), total: data.total };
   }
 };
